@@ -1,8 +1,12 @@
-import { TodoModel } from "../mongooseModelFunctions/todoModel";
+import { TodoModel } from "../mongooseModelFunctions/todoModel.js";
 
 export function todoController() {}
 
-export function createTodo(req, res, next) {
-  const createdTodo = TodoModel.create(req.body);
-  res.status(201).send(createdTodo);
+export async function createTodo(req, res, next) {
+  try {
+    const createdTodo = await TodoModel.create(req.body);
+    res.status(201).send(createdTodo);
+  } catch (error) {
+    next(error);
+  }
 }

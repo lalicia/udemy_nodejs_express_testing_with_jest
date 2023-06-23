@@ -17,7 +17,7 @@ beforeEach(() => {
   //creating mocks that the original implementation has
   req = httpMocks.createRequest();
   res = httpMocks.createResponse();
-  next = null;
+  next = jest.fn();
 });
 
 describe("createTodo", () => {
@@ -35,20 +35,30 @@ describe("createTodo", () => {
     expect(TodoModel.create).toBeCalledWith(newTodo);
   });
 
-  it("should return a 201 response code", () => {
-    createTodo(req, res, next);
+  it("should return a 201 response code", async () => {
+    await createTodo(req, res, next);
     expect(res.statusCode).toBe(201);
     //_isEndCalled from node-mocks-http
     expect(res._isEndCalled()).toBeTruthy();
   });
 
-  it("should return json body in response", () => {
+  it("should return json body in response", async () => {
     //creating a mock return that we are going to expect back
     TodoModel.create.mockReturnValue(newTodo);
     //console.log("newTodo = ", newTodo);
 
-    createTodo(req, res, next);
+    await createTodo(req, res, next);
     //_getJSONData not working, something to do with importing of json file
     expect(res._getData()).toStrictEqual(newTodo);
+  });
+
+  it("should handle errors", async () => {
+    //need to arrange the setup for the test
+    const errorMessage = { message: "Required property missing" };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.create.mockReturnValue(rejectedPromise);
+
+    await createTodo(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
   });
 });

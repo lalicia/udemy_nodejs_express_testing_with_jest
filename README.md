@@ -16,3 +16,12 @@ Supertest
 For integration testing
 
 Needed to split out app.listen as causing an error with jest - (stackoverflow)[https://stackoverflow.com/questions/55038813/cannot-log-after-tests-are-done-in-jestjs]
+
+Async/await
+The course covers this but after you've seen it for a while - the unit tests broke once the createTodo function was made into async/await when creating the db connection. Adding async/await into the unit tests resolved this and the suite passed again.
+
+mlab
+The course features mlab for setting up a browser-based database, but this is now defunct and out of date. Trying to reach mlab will lead you to MongoDB Atlas, which is the Mongo in-house offering that is the replacement. Note: you can only have one free cluster in Atlas on your account, so for this course I needed to delete a cluster from a previous course in order to be able to set it up.
+
+Environment Variables
+The course doesn't use environment variables but as this is better practice, I've done this.
