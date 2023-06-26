@@ -2,6 +2,7 @@
 - needed to add '--experimental-vm-modules node_modules/jest/bin/jest.js' to test script to allow Jest to work, otherwise test suite failed to run
 - watchAll flag allows test suite to keep running so picks up changes and don't have to keep re-running test script
 - error with jest: "TypeError: jest.fn is not a function" - need to import jest from "jest-mock" at top of test file (stackoverflow)[https://stackoverflow.com/questions/46086970/getting-typeerror-jest-fn-is-not-a-function]
+- the code changes between videos and I'm not sure why that is (it's not addressed). One example being .send changed to .json - when I tried .json it didn't work with the test so I use .send as originally demonstrated
 
 Spy vs. Mock
 A spy means you still have the original implementation but can spy on whether it's being called - a mock (jest.fn()) does not call the original implementation but sees whether it's called, and you can return predefined values.
