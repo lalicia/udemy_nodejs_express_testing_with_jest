@@ -1,15 +1,21 @@
 // needed to give access to jest.fn
 import jest from "jest-mock";
 import httpMocks from "node-mocks-http";
-import { getTodos, createTodo } from "../../controllers/todoController.js";
+import {
+  getTodos,
+  createTodo,
+  getTodoByID,
+} from "../../controllers/todoController.js";
 import { TodoModel } from "../../mongooseModelFunctions/todoModel.js";
 import * as newTodo from "../mockData/newTodo.json";
 import * as allTodos from "../mockData/allTodos.json";
+import * as todoID from "../mockData/todoID.json";
 
 // create a mock on a function on the TodoModel method; mongoose has different methods - create, delete, etc - mongoose handles this
 // create mock implementation using jest.fn which spies on function to see if it's being called
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
+TodoModel.findById = jest.fn();
 
 let req, res, next;
 beforeEach(() => {
@@ -48,6 +54,30 @@ describe("getTodos", () => {
 
     await getTodos(req, res, next);
     expect(next).toBeCalledWith(errorMessage);
+  });
+});
+
+describe("getTodoByID", () => {
+  it("should be a function", () => {
+    expect(typeof getTodoByID).toBe("function");
+  });
+
+  it("should call TodoModel.findById withe route parameters", async () => {
+    req.params.todoId = "64958bbf077b9e54cf051217";
+    await getTodoByID(req, res, next);
+    expect(TodoModel.findById).toBeCalledWith("64958bbf077b9e54cf051217");
+  });
+
+  it("should return json body and response code 200", async () => {
+    //creating a mock return that we are going to expect back
+    TodoModel.findById.mockReturnValue(todoID);
+    // do not need to pass in param as we've already tested this works, we're now testing for a return to the function
+    //req.params.todoId = "64958bbf077b9e54cf051217";
+    await getTodoByID(req, res, next);
+
+    expect(res.statusCode).toBe(200);
+    expect(res._isEndCalled).toBeTruthy();
+    expect(res._getData()).toStrictEqual(todoID);
   });
 });
 

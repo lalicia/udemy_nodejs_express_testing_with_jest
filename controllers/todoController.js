@@ -19,3 +19,12 @@ export async function getTodos(req, res, next) {
     next(error);
   }
 }
+
+export async function getTodoByID(req, res, next) {
+  try {
+    const todoID = await TodoModel.findById(req.params.todoId);
+    res.status(200).send(todoID);
+  } catch (error) {
+    next(error);
+  }
+}
