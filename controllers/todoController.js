@@ -10,3 +10,12 @@ export async function createTodo(req, res, next) {
     next(error);
   }
 }
+
+export async function getTodos(req, res, next) {
+  try {
+    const allTodos = await TodoModel.find({});
+    res.status(200).send(allTodos);
+  } catch (error) {
+    next(error);
+  }
+}
