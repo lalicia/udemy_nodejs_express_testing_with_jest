@@ -79,6 +79,24 @@ describe("getTodoByID", () => {
     expect(res._isEndCalled).toBeTruthy();
     expect(res._getData()).toStrictEqual(todoID);
   });
+
+  it("should handle errors", async () => {
+    //need to arrange the setup for the test
+    const errorMessage = { message: "Couldn't retrieve that Todo" };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.findById.mockReturnValue(rejectedPromise);
+
+    await getTodoByID(req, res, next);
+    expect(next).toBeCalledWith(errorMessage);
+  });
+
+  it("should return 404 when Todo doesn't exist", async () => {
+    TodoModel.findById.mockReturnValue(null);
+
+    await getTodoByID(req, res, next);
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled).toBeTruthy();
+  });
 });
 
 // POST tests
