@@ -1,5 +1,6 @@
-// needed to give access to jest.fn
-import jest from "jest-mock";
+// needed to give access to jest.fn - discovered can be replaced with import { jest } from "@jest/globals" which also circumvents hoisting issue with jest.mock()
+//import jest from "jest-mock";
+import { jest } from "@jest/globals";
 import httpMocks from "node-mocks-http";
 import {
   getTodos,
@@ -12,12 +13,16 @@ import * as newTodo from "../mockData/newTodo.json";
 import * as allTodos from "../mockData/allTodos.json";
 import * as todoID from "../mockData/todoID.json";
 
-// create a mock on a function on the TodoModel method; mongoose has different methods - create, delete, etc - mongoose handles this
+// create mocks on functions on the TodoModel method; mongoose has different methods - create, delete, etc - mongoose handles this
 // create mock implementation using jest.fn which spies on function to see if it's being called
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
 TodoModel.findById = jest.fn();
 TodoModel.findByIdAndUpdate = jest.fn();
+TodoModel.findByIdAndDelete = jest.fn();
+
+// is a shortcut in Jest to mock a whole model or class or module etc, but there is an issue with ESM and mock hoisting, see README
+//jest.mock("../../mongooseModelFunctions/todoModel");
 
 let req, res, next;
 const todoId = "64958bbf077b9e54cf051217";
