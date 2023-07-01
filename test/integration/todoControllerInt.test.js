@@ -18,7 +18,7 @@ const allTodos = [
 ];
 
 //got GET by ID we're dealing with a live db, so how to we get a specific one? Here we declare a variable and then in our GET test we can set the first value as the variable
-let firstTodo;
+let firstTodo, newTodoId;
 
 const endpointUrl = "/todos/";
 
@@ -63,6 +63,8 @@ describe(endpointUrl, () => {
       expect(response.statusCode).toBe(201);
       expect(response.body.title).toBe(newTodo.title);
       expect(response.body.done).toBe(newTodo.done);
+      //creating variable for testing the PUT
+      newTodoId = response.body._id;
     },
     15000
   );
@@ -80,4 +82,34 @@ describe(endpointUrl, () => {
       });
     }
   );
+
+  it("PUT" + endpointUrl, async () => {
+    //data to send
+    const testData = { title: "Make integration test for PUT", done: true };
+    //going to use the newly created todo from the POST (where we set newTodoId)
+    const res = await request(app)
+      .put(endpointUrl + newTodoId)
+      .send(testData);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.title).toBe(testData.title);
+    expect(res.body.done).toBe(testData.done);
+  });
+
+  it("should return error 404 when no body to PUT" + endpointUrl, async () => {
+    const response = await request(app).put(endpointUrl).send();
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  it("PUT should return 404 when ID doesn't exist" + endpointUrl, async () => {
+    //data to send
+    const testData = { title: "Test it doesn't put this", done: true };
+    // needs to be an ID that doesn't exist but in correct format, otherwise mongoose will identify it's not a valid ID and will throw a 500 error instead of 404
+    const response = await request(app)
+      .put(endpointUrl + "6435a3f4510949223f5a0805")
+      .send(testData);
+
+    expect(response.statusCode).toBe(404);
+  });
 });
