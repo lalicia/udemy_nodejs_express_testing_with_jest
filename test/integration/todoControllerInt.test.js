@@ -16,6 +16,7 @@ const allTodos = [
     done: false,
   },
 ];
+const putTodo = { title: "Make integration test for PUT", done: true };
 
 //got GET by ID we're dealing with a live db, so how to we get a specific one? Here we declare a variable and then in our GET test we can set the first value as the variable
 let firstTodo, newTodoId;
@@ -24,6 +25,7 @@ const endpointUrl = "/todos/";
 
 describe(endpointUrl, () => {
   // test and it are the same/interchangeable - just use the best for reading for you
+  // GET TESTS
   test("GET" + endpointUrl, async () => {
     const response = await request(app).get(endpointUrl).send(allTodos);
 
@@ -55,6 +57,7 @@ describe(endpointUrl, () => {
     expect(response.statusCode).toBe(404);
   });
 
+  // POST TESTS
   it(
     "POST" + endpointUrl,
     async () => {
@@ -83,17 +86,18 @@ describe(endpointUrl, () => {
     }
   );
 
+  // PUT TESTS
   it("PUT" + endpointUrl, async () => {
-    //data to send
-    const testData = { title: "Make integration test for PUT", done: true };
+    //data to send is declared in global scope as testData
+
     //going to use the newly created todo from the POST (where we set newTodoId)
     const res = await request(app)
       .put(endpointUrl + newTodoId)
-      .send(testData);
+      .send(putTodo);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.title).toBe(testData.title);
-    expect(res.body.done).toBe(testData.done);
+    expect(res.body.title).toBe(putTodo.title);
+    expect(res.body.done).toBe(putTodo.done);
   });
 
   it("should return error 404 when no body to PUT" + endpointUrl, async () => {
@@ -109,6 +113,28 @@ describe(endpointUrl, () => {
     const response = await request(app)
       .put(endpointUrl + "6435a3f4510949223f5a0805")
       .send(testData);
+
+    expect(response.statusCode).toBe(404);
+  });
+
+  // DELETE TESTS
+  test("DELETE by ID" + endpointUrl, async () => {
+    // use the newTodoId as previous
+    const response = await request(app)
+      .delete(endpointUrl + newTodoId)
+      .send();
+    //not quite sure why the body.title and body.done work...would have thought needed to pass putTodo in but hey
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(putTodo.title);
+    expect(response.body.done).toBe(putTodo.done);
+  });
+
+  test("DELETE ID doesn't exist returns 404" + endpointUrl, async () => {
+    // needs to be an ID that doesn't exist but in correct format, otherwise mongoose will identify it's not a valid ID and will throw a 500 error instead of 404
+    const response = await request(app).delete(
+      endpointUrl + "6435a3f4510949223f5a0805"
+    );
 
     expect(response.statusCode).toBe(404);
   });
