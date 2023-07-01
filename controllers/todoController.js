@@ -52,3 +52,16 @@ export async function updateTodo(req, res, next) {
     next(error);
   }
 }
+
+export async function deleteTodo(req, res, next) {
+  try {
+    const deletedTodo = await TodoModel.findByIdAndDelete(req.params.todoId);
+    if (deletedTodo === null) {
+      res.status(404).send();
+    } else {
+      res.status(200).send(deletedTodo);
+    }
+  } catch (error) {
+    next(error);
+  }
+}

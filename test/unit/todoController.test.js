@@ -7,6 +7,7 @@ import {
   createTodo,
   getTodoByID,
   updateTodo,
+  deleteTodo,
 } from "../../controllers/todoController.js";
 import { TodoModel } from "../../mongooseModelFunctions/todoModel.js";
 import * as newTodo from "../mockData/newTodo.json";
@@ -196,6 +197,54 @@ describe("updateTodo", () => {
 
     await updateTodo(req, res, next);
 
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBeTruthy();
+  });
+});
+
+//DELETE tests
+describe("deleteTodo", () => {
+  it("should be a function", () => {
+    expect(typeof deleteTodo).toBe("function");
+  });
+
+  it("should delete with TodoModel.findByIdAndDelete", async () => {
+    //need an ID
+    req.params.todoId = todoId;
+
+    await deleteTodo(req, res, next);
+    expect(TodoModel.findByIdAndDelete).toHaveBeenCalledWith(todoId);
+  });
+
+  it("should return a 200 response code and the deleted todo", async () => {
+    //below bits not required, test will still work
+    // req.params.todoId = todoId;
+    // //could have setup a deleted todo but can just use this one
+    // req.body = newTodo;
+    TodoModel.findByIdAndDelete.mockReturnValue(newTodo);
+
+    await deleteTodo(req, res, next);
+
+    expect(res._isEndCalled()).toBeTruthy();
+    expect(res.statusCode).toBe(200);
+    expect(res._getData()).toStrictEqual(newTodo);
+  });
+
+  it("should handle errors", async () => {
+    const errorMessage = { message: "Couldn't delete Todo" };
+    const rejectedPromise = Promise.reject(errorMessage);
+    TodoModel.findByIdAndDelete.mockReturnValue(rejectedPromise);
+
+    await deleteTodo(req, res, next);
+
+    expect(next).toBeCalledWith(errorMessage);
+  });
+
+  it("should return 404 if there's no Todo with that ID", async () => {
+    //not passing a req.params.todoId
+    TodoModel.findByIdAndDelete.mockReturnValue(null);
+
+    await deleteTodo(req, res, next);
     expect(res.statusCode).toBe(404);
     expect(res._isEndCalled()).toBeTruthy();
   });
